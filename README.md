@@ -14,6 +14,10 @@ Educational Python toolkit of field tools for HVAC/R technicians.
 | `hvac-airflow`       | Airflow / ΔT bands, rough CFM, ranked checks |
 | `hvac-duct-static`   | Duct velocity, component ESP sum, static checklist |
 | `hvac-charge`        | Approx line-set charge add/recover estimate  |
+| `hvac-compressor`    | Compressor symptom tree → ranked checks + parts (LOTO reminders) |
+| `hvac-txv-eev`       | TXV / EEV ranked checks tied to SH/SC        |
+| `hvac-vacuum`        | Evacuation coach, micron hold/decay interpretation, pre-charge list |
+| `hvac-leak-rate`     | Annualized leak-rate practice (NOT a compliance system) |
 
 More tools (TXV/EEV path, vacuum coach, box-load sizer, case controller playbook, A2L checklist, compressor diag, etc.) will be migrated from the individual repos.
 
@@ -48,6 +52,18 @@ hvac-duct-static --cfm 1200 --shape rect --width-in 20 --height-in 10 --filter-d
 
 # Charge add/recover (approximate)
 hvac-charge --system split-ac --refrigerant R-410A --factory-lbs 7.5 --liquid-ft 40 --liquid-od 3/8 --current-lbs 7.5
+
+# Compressor diagnostics
+hvac-compressor --symptom high-amps --sh 4
+
+# TXV / EEV path
+hvac-txv-eev --valve eev --symptom hunting --sh 3 --sc 10
+
+# Vacuum / evacuation
+hvac-vacuum --mode interpret-decay --start-micron 400 --after-micron 450 --minutes 10
+
+# Leak-rate practice (educational only, not compliance)
+hvac-leak-rate --full-charge-lbs 100 --added-lbs 10 --days 182.5 --category commercial-refrigeration
 ```
 
 ## Development

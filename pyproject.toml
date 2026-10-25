@@ -34,6 +34,10 @@ hvac-psych = "hvac_field_toolkit.psychrometrics:main"
 hvac-airflow = "hvac_field_toolkit.airflow:main"
 hvac-duct-static = "hvac_field_toolkit.duct_static:main"
 hvac-charge = "hvac_field_toolkit.charge:main"
+hvac-compressor = "hvac_field_toolkit.compressor_diag:main"
+hvac-txv-eev = "hvac_field_toolkit.txv_eev:main"
+hvac-vacuum = "hvac_field_toolkit.vacuum:main"
+hvac-leak-rate = "hvac_field_toolkit.leak_rate:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
