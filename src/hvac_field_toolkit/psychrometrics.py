@@ -9,15 +9,33 @@ from . import DISCLAIMER
 
 
 def approx_wet_bulb(db: float, rh: float) -> float:
-    """Rough wet-bulb estimate from dry-bulb (°F) and relative humidity (%).
+    """Wet-bulb estimate (°F) from dry-bulb (°F) and relative humidity (%).
 
-    Educational approximation only — not a full psychrometric chart.
+    Uses Stull (2011), "Wet-Bulb Temperature from Relative Humidity and Air
+    Temperature", J. Appl. Meteor. Climatol. 50:2267-2269. The formula is in
+    °C, so dry-bulb is converted °F -> °C and the result converted back.
+
+    Validity (per Stull): roughly 5-99% RH and -20 to 50 °C (-4 to 122 °F),
+    near sea-level pressure (~14.7 psia). Typical error is within about
+    ±0.3 °C (~0.5 °F) inside that range; outside it, treat results with caution.
+    At 100% RH, wet-bulb equals dry-bulb and that value is returned directly.
+
+    Educational approximation only — not a substitute for a psychrometer,
+    full psychrometric chart, or OEM tools.
     """
     if not (0 <= rh <= 100):
         raise ValueError("RH must be 0–100")
-    # Simple depression model; good enough for field practice ranges
-    depression = (100 - rh) * 0.15 * (db / 70.0)
-    return db - depression
+    if rh >= 100:
+        return float(db)
+    t = (db - 32.0) / 1.8
+    tw = (
+        t * math.atan(0.151977 * math.sqrt(rh + 8.313659))
+        + math.atan(t + rh)
+        - math.atan(rh - 1.676331)
+        + 0.00391838 * rh ** 1.5 * math.atan(0.023101 * rh)
+        - 4.686035
+    )
+    return min(tw * 1.8 + 32.0, float(db))
 
 
 def delta_t_airflow_note(supply: float, return_t: float, expected_dt: float = 18.0) -> str:
