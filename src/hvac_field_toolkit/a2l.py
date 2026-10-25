@@ -9,6 +9,8 @@ import argparse
 import sys
 from typing import List, Optional
 
+from ._common import prompt_choice as pc
+
 DISCLAIMER = (
     "EDUCATIONAL ONLY — NOT code or legal advice. "
     "Follow OEM service literature and your AHJ / local amendments for A2L work."
@@ -23,8 +25,16 @@ SECTIONS = [
         [
             "Identify refrigerant on nameplate (R-454B / R-32 / other A2L) and SDS",
             "Confirm space ventilation / room volume vs charge; note occupied-space limits",
+            "CHARGE LIMIT / MINIMUM ROOM AREA: check total system charge (factory + field "
+            "line charge) against the minimum conditioned room area on the nameplate / "
+            "installation manual, per UL 60335-2-40 and ASHRAE 15 — this tool gives no "
+            "numeric limits",
             "Survey ignition sources (open flame, sparking tools, smoking) — control or remove",
             "Use A2L-rated recovery machine, vacuum pump, manifold, hoses, and leak detector",
+            "WARNING: recovery machine and vacuum pump must be listed/rated for A2L "
+            "refrigerants (non-sparking) — do not use non-A2L-rated recovery equipment",
+            "Leak detector must be rated for the A2L refrigerant in use; no open-flame "
+            "(halide torch) detection",
             "Verify recovery cylinder is correct refrigerant class / residual compatible",
             "Have fire extinguisher / site emergency plan per shop policy",
         ],
@@ -87,6 +97,9 @@ def format_report(ref: str, job: str) -> str:
         "Notes:",
         "  • A2L = mildly flammable; treat ignition control and rated tools as non-optional",
         "  • UL 60335-2-40 reminders above are high-level — use OEM commission sheets",
+        "  • WARNING: charge limits / minimum room area come from UL 60335-2-40, ASHRAE 15",
+        "    and the equipment nameplate / installation manual — this tool provides no numbers",
+        "  • WARNING: use only A2L-rated recovery equipment, vacuum pumps, and tools",
         "",
         DISCLAIMER,
     ]
@@ -102,14 +115,6 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--refrigerant", choices=REFS)
     p.add_argument("--job", choices=JOBS, default="both")
     return p
-
-
-def pc(label: str, choices: List[str], default: str) -> str:
-    while True:
-        s = (input(f"{label} ({'/'.join(choices)}) [{default}]: ").strip() or default)
-        if s in choices:
-            return s
-        print("Invalid choice.")
 
 
 def main(argv: Optional[List[str]] = None) -> int:

@@ -3,8 +3,8 @@
 import pytest
 
 from hvac_field_toolkit.electrical import (
-    pct_diff,
     amp_notes,
+    pct_diff,
     voltage_imbalance_1ph,
     voltage_imbalance_3ph,
 )

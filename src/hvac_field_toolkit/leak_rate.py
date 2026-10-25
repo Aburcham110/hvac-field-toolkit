@@ -11,6 +11,9 @@ import sys
 from dataclasses import dataclass
 from typing import List, Optional
 
+from ._common import prompt_choice as pc
+from ._common import prompt_float as pf
+
 BANNER = (
     "!!! NOT A COMPLIANCE SYSTEM — NOT LEGAL ADVICE !!!\n"
     "Educational practice only. Real AIM Act / Section 608 leak-rate audits\n"
@@ -23,18 +26,34 @@ CATEGORIES = (
     "comfort-cooling",
     "commercial-refrigeration",
     "industrial",
-    "transport",
+    "other",
 )
 
-# Educational threshold presets (%/yr). Labeled approximate / historical-ish bands.
-# HFC-ish vs HCFC-ish columns for practice — NOT current law.
+# Leak-rate thresholds (%/yr) from eCFR 40 CFR 82.157(c)(2), checked 2026-10-25:
+#   (i)   20 percent — commercial refrigeration equipment
+#   (ii)  30 percent — industrial process refrigeration equipment
+#   (iii) 10 percent — comfort cooling appliances or other appliances with a full
+#         charge of 50 or more pounds not covered by (i) or (ii)
+# The regulation has no separate "transport" category; transport/other appliances
+# fall under (iii) -> "other". 82.157(a): since April 10, 2020 the section applies
+# only to appliances with a full charge >= 50 lb of class I/class II (ODS, e.g.
+# HCFC) refrigerant; HFC-only appliances are outside 82.157 (see EPA's AIM Act
+# rules, 40 CFR part 84) — thresholds below are the same for every chem class.
 THRESHOLDS = {
     # category: (hfc_pct, hcfc_pct, note)
-    "comfort-cooling": (10.0, 10.0, "comfort cooling practice band"),
-    "commercial-refrigeration": (20.0, 35.0, "commercial refrigeration practice band"),
-    "industrial": (30.0, 35.0, "industrial process practice band"),
-    "transport": (50.0, 50.0, "transport refrigeration practice band"),
+    "comfort-cooling": (10.0, 10.0, "40 CFR 82.157(c)(2)(iii) comfort cooling"),
+    "commercial-refrigeration": (20.0, 20.0, "40 CFR 82.157(c)(2)(i) commercial refrigeration"),
+    "industrial": (30.0, 30.0, "40 CFR 82.157(c)(2)(ii) industrial process refrigeration"),
+    "other": (10.0, 10.0, "40 CFR 82.157(c)(2)(iii) other appliances (incl. transport)"),
 }
+
+# Old category name kept as an accepted alias (no such category in 82.157).
+CATEGORY_ALIASES = {"transport": "other"}
+
+APPLICABILITY_NOTE = (
+    "40 CFR 82.157 applies to appliances with a full charge of 50 lb or more of a "
+    "class I / class II (ODS) refrigerant; HFC-only systems: check 40 CFR part 84."
+)
 
 CHEM_CLASSES = ("hfc", "hcfc", "other")
 
@@ -72,6 +91,7 @@ def analyze(
     chem: str = "hfc",
 ) -> Result:
     cat = category.strip().lower()
+    cat = CATEGORY_ALIASES.get(cat, cat)
     if cat not in CATEGORIES:
         raise ValueError(f"Unknown category: {category!r}")
     ch = chem.strip().lower()
@@ -87,12 +107,18 @@ def analyze(
         "Exclude initial charge after install if your practice rules say so",
         "Calendar the next inspection / leak repair follow-up if over threshold",
         "Log dates, lbs, and tech ID in your official compliance system — not this tool",
-        "Verify current EPA AIM Act / 608 thresholds; presets here are educational only",
+        "Verify current EPA 40 CFR 82.157 / AIM Act (40 CFR part 84) applicability for this appliance",
     ]
     if over:
-        reminders.insert(0, "Practice result OVER educational band — treat as a drill to open real procedures")
+        reminders.insert(
+            0, "Practice result OVER the 82.157 leak rate — treat as a drill to open real procedures"
+        )
     else:
-        reminders.insert(0, "Practice result within educational band — still verify with official tools")
+        reminders.insert(
+            0, "Practice result within the 82.157 leak rate — still verify with official tools"
+        )
+    if full_charge_lbs < 50:
+        reminders.insert(1, "Full charge under 50 lb — 40 CFR 82.157 leak-repair rules do not apply")
     return Result(
         full_charge_lbs=full_charge_lbs,
         added_lbs=added_lbs,
@@ -114,8 +140,9 @@ def format_report(r: Result) -> str:
         f"Full charge: {r.full_charge_lbs:.2f} lb",
         f"Added over period: {r.added_lbs:.2f} lb in {r.days:.1f} days",
         f"Annualized leak rate (practice): {r.annualized_pct:.1f}% / yr",
-        f"Educational threshold preset: {r.threshold_pct:.0f}% / yr",
-        f"Over educational band: {'YES' if r.over else 'no'}",
+        f"Leak rate threshold (40 CFR 82.157(c)(2)): {r.threshold_pct:.0f}% / yr",
+        f"Over threshold: {'YES' if r.over else 'no'}",
+        APPLICABILITY_NOTE,
         "",
         "Next-step reminders:",
     ]
@@ -135,29 +162,13 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--full-charge-lbs", type=float)
     p.add_argument("--added-lbs", type=float)
     p.add_argument("--days", type=float, help="Rolling period length in days")
-    p.add_argument("--category", choices=CATEGORIES)
+    p.add_argument(
+        "--category",
+        choices=CATEGORIES + tuple(CATEGORY_ALIASES),
+        help="Appliance category ('transport' is accepted as an alias for 'other')",
+    )
     p.add_argument("--chem", choices=CHEM_CLASSES, default="hfc")
     return p
-
-
-def pf(prompt: str, default: Optional[float] = None) -> float:
-    while True:
-        suf = f" [{default}]" if default is not None else ""
-        s = input(f"{prompt}{suf}: ").strip()
-        if not s and default is not None:
-            return float(default)
-        try:
-            return float(s)
-        except ValueError:
-            print("Enter a number.")
-
-
-def pc(label: str, choices: List[str], default: str) -> str:
-    while True:
-        s = (input(f"{label} ({'/'.join(choices)}) [{default}]: ").strip() or default)
-        if s in choices:
-            return s
-        print("Invalid choice.")
 
 
 def main(argv: Optional[List[str]] = None) -> int:

@@ -11,6 +11,8 @@ import sys
 from dataclasses import dataclass
 from typing import Dict, List, Optional
 
+from ._common import prompt_float as pf
+
 DISCLAIMER = (
     "EDUCATIONAL ONLY — NOT an OEM charge procedure. "
     "Use manufacturer charts, weighed-in charge, and a refrigerant-rated "
@@ -236,18 +238,6 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--extra-lbs", type=float, default=0.0, help="Other extra volume (lb)")
     p.add_argument("--current-lbs", type=float, default=None, help="Current charge if known (lb)")
     return p
-
-
-def pf(prompt: str, default: Optional[float] = None) -> float:
-    while True:
-        suf = f" [{default}]" if default is not None else ""
-        s = input(f"{prompt}{suf}: ").strip()
-        if not s and default is not None:
-            return float(default)
-        try:
-            return float(s)
-        except ValueError:
-            print("Enter a number.")
 
 
 def pc(label: str, choices: List[str], default: str) -> str:

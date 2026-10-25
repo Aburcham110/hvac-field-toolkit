@@ -9,6 +9,8 @@ import argparse
 import sys
 from typing import Dict, List, Optional, Tuple
 
+from ._common import prompt_choice as pc
+
 DISCLAIMER = (
     "EDUCATIONAL ONLY — incomplete diagnostic stubs. "
     "Follow LOTO, PPE, and OEM procedures. Live voltage and refrigerant hazards."
@@ -117,14 +119,6 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--sh", type=float, default=None, help="Superheat °F context")
     p.add_argument("--sc", type=float, default=None, help="Subcooling °F context")
     return p
-
-
-def pc(label: str, choices: List[str], default: str) -> str:
-    while True:
-        s = (input(f"{label} ({'/'.join(choices)}) [{default}]: ").strip() or default)
-        if s in choices:
-            return s
-        print("Invalid choice.")
 
 
 def main(argv: Optional[List[str]] = None) -> int:

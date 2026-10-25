@@ -13,6 +13,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
+from ._common import prompt_text as prompt
+
 DISCLAIMER = (
     "EDUCATIONAL / RECORD-KEEPING AID ONLY — NOT legal advice, NOT an EPA "
     "compliance system, and NOT a substitute for certified technician judgment "
@@ -123,12 +125,6 @@ class JobLog:
             f"**Extra notes:** {self.extra_notes}\n\n"
             f"---\n\n*{DISCLAIMER}*\n"
         )
-
-
-def prompt(label: str, default: str = "") -> str:
-    suffix = f" [{default}]" if default else ""
-    val = input(f"{label}{suffix}: ").strip()
-    return val if val else default
 
 
 def yn(label: str, default: str = "N") -> str:
