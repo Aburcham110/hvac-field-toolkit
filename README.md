@@ -18,6 +18,10 @@ Educational Python toolkit of field tools for HVAC/R technicians.
 | `hvac-txv-eev`       | TXV / EEV ranked checks tied to SH/SC        |
 | `hvac-vacuum`        | Evacuation coach, micron hold/decay interpretation, pre-charge list |
 | `hvac-leak-rate`     | Annualized leak-rate practice (NOT a compliance system) |
+| `hvac-box-load`      | Walk-in cooler/freezer box-load estimate (not for bids) |
+| `hvac-defrost`       | Cooler/freezer defrost & controls checklist  |
+| `hvac-oil-rack`      | Commercial rack oil-system call tree         |
+| `hvac-case-controller` | Case controller playbook (probes → wiring → controller) |
 
 More tools (TXV/EEV path, vacuum coach, box-load sizer, case controller playbook, A2L checklist, compressor diag, etc.) will be migrated from the individual repos.
 
@@ -64,6 +68,18 @@ hvac-vacuum --mode interpret-decay --start-micron 400 --after-micron 450 --minut
 
 # Leak-rate practice (educational only, not compliance)
 hvac-leak-rate --full-charge-lbs 100 --added-lbs 10 --days 182.5 --category commercial-refrigeration
+
+# Walk-in box load
+hvac-box-load --length 8 --width 10 --height 8 --box-type cooler
+
+# Defrost / controls checklist
+hvac-defrost --box freezer --mode time-clock
+
+# Rack oil call tree
+hvac-oil-rack --symptom low-oil-alarm
+
+# Case controller playbook
+hvac-case-controller --focus probes
 ```
 
 ## Development
