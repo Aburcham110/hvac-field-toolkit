@@ -6,7 +6,8 @@ import sys
 
 import pytest
 
-from hvac_field_toolkit import a2l, job_log, nameplate_faults as nf
+from hvac_field_toolkit import a2l, job_log
+from hvac_field_toolkit import nameplate_faults as nf
 
 
 # --- A2L ---------------------------------------------------------------------

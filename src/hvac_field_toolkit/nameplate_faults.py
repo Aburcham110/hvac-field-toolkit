@@ -13,6 +13,8 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
+from ._common import prompt_text as prompt
+
 DISCLAIMER = (
     "EDUCATIONAL ONLY — fault-code database is incomplete / stubbed. "
     "Verify with the OEM service manual. Photos of nameplates can be reviewed in Service Tech chat."
@@ -199,12 +201,6 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--store", default=str(DEFAULT_STORE), help="JSON store path")
     p.add_argument("--list-codes", action="store_true", help="List stub codes and exit")
     return p
-
-
-def prompt(label: str, default: str = "") -> str:
-    suf = f" [{default}]" if default else ""
-    s = input(f"{label}{suf}: ").strip()
-    return s or default
 
 
 def from_interactive() -> Nameplate:

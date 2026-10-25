@@ -11,6 +11,8 @@ import sys
 from dataclasses import dataclass
 from typing import List, Optional
 
+from ._common import prompt_optional_float as pf
+
 DISCLAIMER = (
     "EDUCATIONAL ONLY — NOT Manual D / NOT a ductulator replacement. "
     "Use ACCA Manual D and OEM blower tables for real designs."
@@ -122,20 +124,6 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--coil-dp", type=float, default=None, help="Coil ΔP in. w.c.")
     p.add_argument("--other-dp", type=float, default=0.0, help="Other ΔP in. w.c.")
     return p
-
-
-def pf(prompt: str, default: Optional[float] = None) -> Optional[float]:
-    while True:
-        suf = f" [{default}]" if default is not None else ""
-        raw = input(f"{prompt}{suf}: ").strip()
-        if not raw and default is not None:
-            return float(default)
-        if not raw:
-            return None
-        try:
-            return float(raw)
-        except ValueError:
-            print("Enter a number.")
 
 
 def main(argv: Optional[List[str]] = None) -> int:

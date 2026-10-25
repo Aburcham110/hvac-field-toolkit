@@ -7,8 +7,9 @@ Does not replace Hussmann / Copeland / OEM manuals.
 from __future__ import annotations
 
 import argparse
-import sys
 from typing import List, Optional
+
+from ._common import prompt_choice as pc
 
 DISCLAIMER = (
     "EDUCATIONAL ONLY — high-level playbook, not OEM manuals. "
@@ -105,14 +106,6 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("-i", "--interactive", action="store_true")
     p.add_argument("--focus", choices=FOCUSES, default="full")
     return p
-
-
-def pc(label: str, choices: List[str], default: str) -> str:
-    while True:
-        s = (input(f"{label} ({'/'.join(choices)}) [{default}]: ").strip() or default)
-        if s in choices:
-            return s
-        print("Invalid choice.")
 
 
 def main(argv: Optional[List[str]] = None) -> int:

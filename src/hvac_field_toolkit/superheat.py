@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import argparse
 import sys
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
-from . import DISCLAIMER
+from ._common import DISCLAIMER, prompt_choice, prompt_float, prompt_optional_float
 
 # Static saturation PT tables (no runtime CoolProp dependency).
 # Each row: (saturation temperature °F, DEW psig, BUBBLE psig), -40..130 °F every 5 °F.
@@ -186,34 +186,62 @@ def sc_guide(sc: float) -> str:
     return "High — check for overcharge or non-condensables (approx)."
 
 
-def main() -> None:
+def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Educational HVAC/R superheat & subcooling calculator"
     )
-    parser.add_argument("--refrigerant", "-r", choices=REFRIGERANTS, required=True)
+    parser.add_argument("-i", "--interactive", action="store_true", help="Prompt for inputs")
+    parser.add_argument("--refrigerant", "-r", choices=REFRIGERANTS)
     parser.add_argument("--suction-psig", type=float, help="Suction pressure (psig)")
     parser.add_argument("--suction-temp", type=float, help="Suction line temperature (°F)")
     parser.add_argument("--liquid-psig", type=float, help="Liquid pressure (psig)")
     parser.add_argument("--liquid-temp", type=float, help="Liquid line temperature (°F)")
-    args = parser.parse_args()
+    return parser
+
+
+def _interactive(ns: argparse.Namespace) -> None:
+    print(DISCLAIMER)
+    print()
+    ns.refrigerant = prompt_choice("Refrigerant", REFRIGERANTS, "R-410A")
+    ns.suction_psig = prompt_optional_float("Suction pressure psig (blank to skip)")
+    if ns.suction_psig is not None:
+        ns.suction_temp = prompt_float("Suction line temp °F")
+    ns.liquid_psig = prompt_optional_float("Liquid pressure psig (blank to skip)")
+    if ns.liquid_psig is not None:
+        ns.liquid_temp = prompt_float("Liquid line temp °F")
+    print()
+
+
+def main(argv: Optional[List[str]] = None) -> int:
+    parser = build_parser()
+    args = parser.parse_args(argv)
+    if args.interactive:
+        _interactive(args)
+    elif not args.refrigerant:
+        parser.error("the following arguments are required: --refrigerant/-r (or use -i)")
 
     print(DISCLAIMER)
     print(f"Refrigerant: {args.refrigerant}")
     print("Note: Saturation temps from static PT table (dew for SH, bubble for SC).")
     print("Verify against the OEM PT chart for the refrigerant before acting.\n")
 
-    if args.suction_psig is not None and args.suction_temp is not None:
-        sh = superheat(args.refrigerant, args.suction_psig, args.suction_temp)
-        print(f"Superheat: {sh:.1f} °F  —  {sh_guide(sh)}")
-    if args.liquid_psig is not None and args.liquid_temp is not None:
-        sc = subcooling(args.refrigerant, args.liquid_psig, args.liquid_temp)
-        print(f"Subcooling: {sc:.1f} °F  —  {sc_guide(sc)}")
-    if (args.suction_psig is None or args.suction_temp is None) and (
-        args.liquid_psig is None or args.liquid_temp is None
-    ):
+    have_sh = args.suction_psig is not None and args.suction_temp is not None
+    have_sc = args.liquid_psig is not None and args.liquid_temp is not None
+    try:
+        if have_sh:
+            sh = superheat(args.refrigerant, args.suction_psig, args.suction_temp)
+            print(f"Superheat: {sh:.1f} °F  —  {sh_guide(sh)}")
+        if have_sc:
+            sc = subcooling(args.refrigerant, args.liquid_psig, args.liquid_temp)
+            print(f"Subcooling: {sc:.1f} °F  —  {sc_guide(sc)}")
+    except ValueError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        return 2
+    if not (have_sh or have_sc):
         print("Provide suction and/or liquid pressure + line temperature.")
-        sys.exit(1)
+        return 1
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

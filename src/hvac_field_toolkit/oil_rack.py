@@ -9,6 +9,8 @@ import argparse
 import sys
 from typing import List, Optional
 
+from ._common import prompt_choice as pc
+
 DISCLAIMER = (
     "EDUCATIONAL ONLY — OEM rack oil controls, separators, and regulators vary. "
     "Verify against rack drawings and manufacturer service literature."
@@ -85,14 +87,6 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("-i", "--interactive", action="store_true")
     p.add_argument("--symptom", choices=SYMPTOMS)
     return p
-
-
-def pc(label: str, choices: List[str], default: str) -> str:
-    while True:
-        s = (input(f"{label} ({'/'.join(choices)}) [{default}]: ").strip() or default)
-        if s in choices:
-            return s
-        print("Invalid choice.")
 
 
 def main(argv: Optional[List[str]] = None) -> int:

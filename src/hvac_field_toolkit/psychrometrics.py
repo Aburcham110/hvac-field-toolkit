@@ -4,8 +4,10 @@ from __future__ import annotations
 
 import argparse
 import math
+import sys
+from typing import List, Optional
 
-from . import DISCLAIMER
+from ._common import DISCLAIMER, prompt_float, prompt_optional_float
 
 
 def approx_wet_bulb(db: float, rh: float) -> float:
@@ -48,21 +50,42 @@ def delta_t_airflow_note(supply: float, return_t: float, expected_dt: float = 18
     return f"ΔT {dt:.1f}°F often near a common band for many systems (approx)."
 
 
-def main() -> None:
+def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Educational psychrometrics helper")
-    parser.add_argument("--db", type=float, required=True, help="Dry-bulb °F")
+    parser.add_argument("-i", "--interactive", action="store_true", help="Prompt for inputs")
+    parser.add_argument("--db", "--dry-bulb", dest="db", type=float, help="Dry-bulb °F")
     parser.add_argument("--rh", type=float, help="Relative humidity %%")
-    parser.add_argument("--wb", type=float, help="Wet-bulb °F (optional)")
-    args = parser.parse_args()
+    parser.add_argument("--wb", "--wet-bulb", dest="wb", type=float,
+                        help="Wet-bulb °F (optional)")
+    return parser
+
+
+def main(argv: Optional[List[str]] = None) -> int:
+    parser = build_parser()
+    args = parser.parse_args(argv)
+    if args.interactive:
+        print(DISCLAIMER)
+        print()
+        args.db = prompt_float("Dry-bulb °F")
+        args.rh = prompt_optional_float("Relative humidity % (blank to skip)")
+        args.wb = prompt_optional_float("Wet-bulb °F (blank to skip)")
+        print()
+    elif args.db is None:
+        parser.error("the following arguments are required: --db (or use -i)")
 
     print(DISCLAIMER)
     print(f"Dry-bulb: {args.db:.1f} °F")
-    if args.rh is not None:
-        wb_est = approx_wet_bulb(args.db, args.rh)
-        print(f"Approx wet-bulb from {args.rh:.0f}% RH: {wb_est:.1f} °F")
+    try:
+        if args.rh is not None:
+            wb_est = approx_wet_bulb(args.db, args.rh)
+            print(f"Approx wet-bulb from {args.rh:.0f}% RH: {wb_est:.1f} °F")
+    except ValueError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        return 2
     if args.wb is not None:
         print(f"Given wet-bulb: {args.wb:.1f} °F")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
