@@ -51,7 +51,7 @@ def delta_t_airflow_note(supply: float, return_t: float, expected_dt: float = 18
 def main() -> None:
     parser = argparse.ArgumentParser(description="Educational psychrometrics helper")
     parser.add_argument("--db", type=float, required=True, help="Dry-bulb °F")
-    parser.add_argument("--rh", type=float, help="Relative humidity %")
+    parser.add_argument("--rh", type=float, help="Relative humidity %%")
     parser.add_argument("--wb", type=float, help="Wet-bulb °F (optional)")
     args = parser.parse_args()
 
