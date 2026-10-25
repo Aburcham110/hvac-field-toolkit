@@ -42,6 +42,9 @@ hvac-box-load = "hvac_field_toolkit.box_load:main"
 hvac-defrost = "hvac_field_toolkit.defrost:main"
 hvac-oil-rack = "hvac_field_toolkit.oil_rack:main"
 hvac-case-controller = "hvac_field_toolkit.case_controller:main"
+hvac-a2l = "hvac_field_toolkit.a2l:main"
+hvac-nameplate = "hvac_field_toolkit.nameplate_faults:main"
+hvac-job-log = "hvac_field_toolkit.job_log:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
