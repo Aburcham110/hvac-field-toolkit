@@ -6,8 +6,9 @@ OEM superheat targets and EEV logic vary — verify with manuals.
 from __future__ import annotations
 
 import argparse
-import sys
 from typing import List, Optional
+
+from ._common import prompt_choice as pc
 
 DISCLAIMER = (
     "EDUCATIONAL ONLY — OEM superheat targets and EEV control logic vary. "
@@ -92,14 +93,6 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--sh", type=float, default=None)
     p.add_argument("--sc", type=float, default=None)
     return p
-
-
-def pc(label: str, choices: List[str], default: str) -> str:
-    while True:
-        s = (input(f"{label} ({'/'.join(choices)}) [{default}]: ").strip() or default)
-        if s in choices:
-            return s
-        print("Invalid choice.")
 
 
 def main(argv: Optional[List[str]] = None) -> int:

@@ -10,6 +10,9 @@ import sys
 from dataclasses import dataclass
 from typing import List, Optional, Tuple
 
+from ._common import prompt_choice as pc
+from ._common import prompt_float as pf
+
 DISCLAIMER = (
     "EDUCATIONAL ONLY — NOT Manual D / NOT a substitute for anemometer "
     "airflow measurement or OEM temperature-rise / CFM charts."
@@ -198,28 +201,9 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--supply", type=float, help="Supply air °F")
     p.add_argument("--return-temp", type=float, dest="return_temp", help="Return air °F")
     p.add_argument("--kw", type=float, default=None, help="Optional heat input kW (strips/heat)")
-    p.add_argument("--btu", type=float, default=None, help="Optional heat input BTU/h")
+    p.add_argument("--btuh", "--btu", dest="btu", type=float, default=None,
+                   help="Optional heat input BTU/h (--btu kept as alias)")
     return p
-
-
-def pf(prompt: str, default: Optional[float] = None) -> float:
-    while True:
-        suf = f" [{default}]" if default is not None else ""
-        s = input(f"{prompt}{suf}: ").strip()
-        if not s and default is not None:
-            return float(default)
-        try:
-            return float(s)
-        except ValueError:
-            print("Enter a number.")
-
-
-def pc(label: str, choices: List[str], default: str) -> str:
-    while True:
-        s = (input(f"{label} ({'/'.join(choices)}) [{default}]: ").strip() or default)
-        if s in choices:
-            return s
-        print("Invalid choice.")
 
 
 def interactive() -> Result:
@@ -241,7 +225,7 @@ def from_args(ns: argparse.Namespace) -> Result:
     if ns.system is None or ns.supply is None or ns.return_temp is None:
         raise SystemExit("Need --system --supply --return-temp (or -i)")
     if ns.kw is not None and ns.btu is not None:
-        raise SystemExit("Use only one of --kw or --btu")
+        raise SystemExit("Use only one of --kw or --btuh")
     return analyze(
         system=ns.system,
         supply_f=ns.supply,

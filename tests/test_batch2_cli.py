@@ -62,8 +62,11 @@ def test_leak_rate_threshold_by_chem():
     hcfc = leak_rate.analyze(full_charge_lbs=100, added_lbs=12.5, days=182.5,
                              category="commercial-refrigeration", chem="hcfc")
     assert hfc.annualized_pct == pytest.approx(25.0)
+    # 40 CFR 82.157(c)(2)(i): 20 percent for commercial refrigeration, same for
+    # every chem class (the old 35% HCFC preset was not in the regulation).
+    assert hfc.threshold_pct == hcfc.threshold_pct == 20.0
     assert hfc.over is True
-    assert hcfc.over is False
+    assert hcfc.over is True
 
 
 # --- CLI ---------------------------------------------------------------------

@@ -9,6 +9,8 @@ import argparse
 import sys
 from typing import List, Optional
 
+from ._common import prompt_choice as pc
+
 DISCLAIMER = (
     "EDUCATIONAL ONLY — not a substitute for a calibrated digital micron gauge "
     "or OEM evacuation / dehydration procedures."
@@ -104,14 +106,6 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--after-micron", type=float)
     p.add_argument("--minutes", type=float, help="Hold duration minutes")
     return p
-
-
-def pc(label: str, choices: List[str], default: str) -> str:
-    while True:
-        s = (input(f"{label} ({'/'.join(choices)}) [{default}]: ").strip() or default)
-        if s in choices:
-            return s
-        print("Invalid choice.")
 
 
 def pf(prompt: str) -> float:

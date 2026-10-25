@@ -9,6 +9,8 @@ import argparse
 import sys
 from typing import List, Optional
 
+from ._common import prompt_choice as pc
+
 DISCLAIMER = (
     "EDUCATIONAL ONLY — OEM defrost controls vary widely. "
     "Verify every step against the equipment manual and wiring diagram."
@@ -94,14 +96,6 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--box", choices=BOX_TYPES, help="cooler or freezer")
     p.add_argument("--mode", choices=DEFROST_MODES, help="time-clock, demand, or unknown")
     return p
-
-
-def pc(label: str, choices: List[str], default: str) -> str:
-    while True:
-        s = (input(f"{label} ({'/'.join(choices)}) [{default}]: ").strip() or default)
-        if s in choices:
-            return s
-        print("Invalid choice.")
 
 
 def main(argv: Optional[List[str]] = None) -> int:
