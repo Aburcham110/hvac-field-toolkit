@@ -22,6 +22,9 @@ Educational Python toolkit of field tools for HVAC/R technicians.
 | `hvac-defrost`       | Cooler/freezer defrost & controls checklist  |
 | `hvac-oil-rack`      | Commercial rack oil-system call tree         |
 | `hvac-case-controller` | Case controller playbook (probes → wiring → controller) |
+| `hvac-a2l`           | A2L (R-454B / R-32) field safety checklist   |
+| `hvac-nameplate`     | Nameplate card + stub fault-code lookup      |
+| `hvac-job-log`       | Job-log notes with 608-style fields (NOT compliance) |
 
 More tools (TXV/EEV path, vacuum coach, box-load sizer, case controller playbook, A2L checklist, compressor diag, etc.) will be migrated from the individual repos.
 
@@ -80,6 +83,16 @@ hvac-oil-rack --symptom low-oil-alarm
 
 # Case controller playbook
 hvac-case-controller --focus probes
+
+# A2L field checklist
+hvac-a2l --refrigerant R-454B --job install
+
+# Nameplate card + fault code lookup (stubbed database)
+hvac-nameplate --brand Carrier --model 24ACC636 --code 33
+hvac-nameplate --list-codes
+
+# Job log (text or markdown)
+hvac-job-log --technician "A. Tech" --customer "Acme" --refrigerant R-410A --format markdown
 ```
 
 ## Development
