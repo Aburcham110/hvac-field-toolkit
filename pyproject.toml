@@ -31,6 +31,9 @@ dev = ["pytest>=7.0"]
 hvac-sh-sc = "hvac_field_toolkit.superheat:main"
 hvac-electrical = "hvac_field_toolkit.electrical:main"
 hvac-psych = "hvac_field_toolkit.psychrometrics:main"
+hvac-airflow = "hvac_field_toolkit.airflow:main"
+hvac-duct-static = "hvac_field_toolkit.duct_static:main"
+hvac-charge = "hvac_field_toolkit.charge:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
