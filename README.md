@@ -42,7 +42,8 @@ pip install -e ".[dev]"
 
 ```bash
 # Superheat & subcooling
-hvac-sh-sc -r R-410A --suction-psig 118 --suction-temp 40 --liquid-psig 200 --liquid-temp 50
+hvac-sh-sc -r R-410A --suction-psig 118 --suction-temp 52 --liquid-psig 318 --liquid-temp 90
+# -> SH ~12 °F (dew), SC ~10 °F (bubble). Verify against the OEM PT chart.
 
 # Electrical
 hvac-electrical amps --measured 14.2 --fla 16.0 --rla 12.8
